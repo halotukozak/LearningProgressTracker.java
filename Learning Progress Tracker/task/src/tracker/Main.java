@@ -1,13 +1,21 @@
 package tracker;
 
+import tracker.db.LearningDatabase;
+import tracker.models.Course;
+import tracker.models.Student;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
+    static final List<String> courses = List.of("Java", "DSA", "Databases", "Spring");
 
-    private static StudentsDatabase db;
+    private static LearningDatabase db;
 
     public static void main(String[] args) {
         init();
@@ -15,7 +23,11 @@ public class Main {
     }
 
     private static void init() {
-        db = new StudentsDatabase();
+        db = new LearningDatabase();
+        for (String courseName : courses) {
+            Course course = new Course(courseName);
+            db.add(course);
+        }
     }
 
     private static void run() {
@@ -35,8 +47,9 @@ public class Main {
                     case "back" -> throw new Exception("Enter 'exit' to exit the program");
                     case "add students" -> addStudents();
                     case "add points" -> addPoints();
-                    case "list" -> printStudents();
+                    case "list" -> list();
                     case "find" -> find();
+                    case "statistics" -> statistics();
                     default -> throw new Exception("Unknown command!");
                 }
             } catch (Exception e) {
@@ -46,24 +59,52 @@ public class Main {
         while (scanner.hasNextLine());
     }
 
+    private static void statistics() {
+//        TODO General statistics about courses, "n/a"
+        println("Type the name of a course to see details or 'back' to quit");
+        String courseName;
+        do {
+            try {
+                courseName = scanner.nextLine();
+//                TODO case insensitive
+                Course course = db.findCourseByName(courseName);
+                println("id\tpoints\tcompleted");
+                DecimalFormat df = new DecimalFormat("#.##");
+                df.setRoundingMode(RoundingMode.HALF_UP);
+                Map<Integer, Integer> details = db.getDetailsOfCourse(courseName);
+                for (var entry : details.entrySet()) {
+                    Double percentage = (double)(entry.getValue() * 100) / course.getCompleteness();
+                    println(entry.getKey() + "\t" + entry.getValue() + "\t" + df.format(percentage) + "%");
+                }
+
+
+
+            } catch (Exception e) {
+                println(e.getMessage());
+            }
+        }
+        while (scanner.hasNextLine());
+    }
+
     private static void addPoints() {
-        println("Enter an id and points or 'back' to return.");
+        println("Enter an ID and points or 'back' to return.");
         String input;
         do {
             try {
                 input = scanner.nextLine();
                 if (input.equalsIgnoreCase("back")) break;
                 List<String> inputArr = List.of(input.split(" "));
-                String id = inputArr.get(0);
-                Student student = db.findStudentById(id);
                 if (inputArr.size() != 5) throw new Exception("Incorrect points format.");
-                if (student == null) throw new Exception("No student is found for id=" + id);
+                String ID = inputArr.get(0);
+                Student student = db.findStudentByID(ID);
+                if (student == null) throw new Exception("No student is found for ID=" + ID);
                 for (String e : inputArr) if (!e.matches("^[0-9]+$")) throw new Exception("Incorrect points format.");
                 List<Integer> inputArrInt = inputArr.stream().map(Integer::parseInt).toList();
-                student.addPoints("Java", inputArrInt.get(1));
-                student.addPoints("DSA", inputArrInt.get(2));
-                student.addPoints("Databases", inputArrInt.get(3));
-                student.addPoints("Spring", inputArrInt.get(4));
+                for (int i = 0; i <= 4; i++) {
+                    String name = courses.get(i);
+                    Course course = db.findCourseByName(name);
+                    db.addPoints(student.getID(), course.getID(), inputArrInt.get(i+1));
+                }
                 println("Points updated.");
             } catch (Exception e) {
                 println(e.getMessage());
@@ -72,7 +113,7 @@ public class Main {
         while (scanner.hasNextLine());
     }
 
-    private static void printStudents() throws Exception {
+    private static void list() throws Exception {
         Set<Integer> IDs = db.getIDs();
         if (IDs.isEmpty()) throw new Exception("No students found.");
         println("Students:");
@@ -80,16 +121,17 @@ public class Main {
     }
 
     public static void find() {
-        println("Enter an id or 'back' to return:");
+        println("Enter an ID or 'back' to return:");
         do {
             try {
                 String input = scanner.nextLine();
                 if (input.equalsIgnoreCase("back")) break;
-                int id = Integer.parseInt(input);
-                Student student = db.findStudentById(id);
-                if (student == null) throw new Exception("No student is found for id=" + id);
+                int ID = Integer.parseInt(input);
+                Student student = db.findStudentByID(ID);
+                if (student == null) throw new Exception("No student is found for ID=" + ID);
                 System.out.print(student.getID() + " points: ");
-                student.getAllPoints().forEach((subject, points) -> System.out.print(subject + "=" + points + "; "));
+                Map<String, Integer> result = db.getResultsOfStudent(student.getID());
+                result.forEach((name, points) -> System.out.print(name + "=" + points + "; "));
                 println("");
             } catch (Exception e) {
                 println(e.getMessage());

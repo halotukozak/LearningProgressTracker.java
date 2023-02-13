@@ -1,6 +1,7 @@
 package tracker;
 
 import org.junit.jupiter.api.Test;
+import tracker.models.Student;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -31,24 +32,12 @@ class StudentTest {
     }
 
     @Test
-    void setParameters(){
+    void setParameters() {
         try {
             Student s = new Student("firstName lastName email@dot.com");
             assertEquals(s.getEmail(), "email@dot.com");
             assertEquals(s.getFirstName(), "firstName");
             assertEquals(s.getLastName(), "lastName");
-        } catch (Exception e) {
-            fail("These parameters should be OK.");
-        }
-
-    }
-
-    @Test
-    void setPoints(){
-        try {
-            Student s = new Student("firstName lastName email@dot.com");
-            s.addPoints("Java", 1000);
-            assertEquals(s.getPoints("Java"), 1000);
         } catch (Exception e) {
             fail("These parameters should be OK.");
         }

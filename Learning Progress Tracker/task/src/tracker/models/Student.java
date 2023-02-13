@@ -1,20 +1,16 @@
-package tracker;
+package tracker.models;
 
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
-class Student {
+public class Student {
 
 
     private String firstName;
     private String lastName;
     private String email;
     private int ID;
-
-    private final Map<String, Integer> points = new HashMap<>() {
-    };
+    static int lastID = 0;
 
     public Student(String firstName, String lastName, String email) throws Exception {
         this.setEmail(email);
@@ -36,7 +32,7 @@ class Student {
     }
 
     public void setEmail(String email) throws Exception {
-        if (RegexValidator.isValidEmail(email))
+        if (StudentValidator.isValidEmail(email))
             this.email = email;
         else {
             throw new Exception("Incorrect email.");
@@ -44,7 +40,7 @@ class Student {
     }
 
     public void setFirstName(String firstName) throws Exception {
-        if (RegexValidator.isValidFirstName(firstName))
+        if (StudentValidator.isValidFirstName(firstName))
             this.firstName = firstName;
         else {
             throw new Exception("Incorrect first name.");
@@ -52,24 +48,13 @@ class Student {
     }
 
     public void setLastName(String lastName) throws Exception {
-        if (RegexValidator.isValidLastName(lastName))
+        if (StudentValidator.isValidLastName(lastName))
             this.lastName = lastName;
         else {
             throw new Exception("Incorrect last name.");
         }
     }
 
-    public void addPoints(String subject, int i) {
-        this.points.put(subject, this.getPoints(subject) + i);
-    }
-
-    public int getPoints(String subject) {
-        return points.getOrDefault(subject, 0);
-    }
-
-    public Map<String, Integer> getAllPoints() {
-        return points;
-    }
 
     public String getFirstName() {
         return firstName;
@@ -88,12 +73,13 @@ class Student {
         return ID;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public int setID() {
+        this.ID = ++lastID;
+        return this.ID;
     }
 
 
-    static class RegexValidator {
+    public static class StudentValidator {
 
 
         public static boolean isValidFirstName(String firstName) {

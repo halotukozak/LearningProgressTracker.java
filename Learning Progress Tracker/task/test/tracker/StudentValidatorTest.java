@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static tracker.Student.RegexValidator.*;
+import static tracker.models.Student.StudentValidator.*;
 
-class RegexValidatorTest {
+class StudentValidatorTest {
 
 
     //Email

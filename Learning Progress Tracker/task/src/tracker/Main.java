@@ -1,136 +1,131 @@
 package tracker;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Main {
+    static Scanner scanner = new Scanner(System.in);
+
+    private static StudentsDatabase db;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        init();
+        run();
+    }
 
-        System.out.println("Learning Progress Tracker");
+    private static void init() {
+        db = new StudentsDatabase();
+    }
 
+    private static void run() {
+        println("Learning Progress Tracker");
         String input;
         do {
-            input = scanner.nextLine().toLowerCase();
-            if (input.isBlank()) {
-                System.out.println("No input");
-                continue;
-            }
-            switch (input) {
-                case "exit" -> {
-                    System.out.println("Bye!");
-                    System.exit(0);
+            try {
+                input = scanner.nextLine().toLowerCase();
+                if (input.isBlank()) {
+                    throw new Exception("No input");
                 }
-                case "back" -> System.out.println("Enter 'exit' to exit the program");
-                case "add students" -> addStudents();
-                default -> System.out.println("Unknown command!");
+                switch (input) {
+                    case "exit" -> {
+                        println("Bye!");
+                        System.exit(0);
+                    }
+                    case "back" -> throw new Exception("Enter 'exit' to exit the program");
+                    case "add students" -> addStudents();
+                    case "add points" -> addPoints();
+                    case "list" -> printStudents();
+                    case "find" -> find();
+                    default -> throw new Exception("Unknown command!");
+                }
+            } catch (Exception e) {
+                println(e.getMessage());
             }
         }
         while (scanner.hasNextLine());
     }
 
+    private static void addPoints() {
+        println("Enter an id and points or 'back' to return.");
+        String input;
+        do {
+            try {
+                input = scanner.nextLine();
+                if (input.equalsIgnoreCase("back")) break;
+                List<String> inputArr = List.of(input.split(" "));
+                String id = inputArr.get(0);
+                Student student = db.findStudentById(id);
+                if (inputArr.size() != 5) throw new Exception("Incorrect points format.");
+                if (student == null) throw new Exception("No student is found for id=" + id);
+                for (String e : inputArr) if (!e.matches("^[0-9]+$")) throw new Exception("Incorrect points format.");
+                List<Integer> inputArrInt = inputArr.stream().map(Integer::parseInt).toList();
+                student.addPoints("Java", inputArrInt.get(1));
+                student.addPoints("DSA", inputArrInt.get(2));
+                student.addPoints("Databases", inputArrInt.get(3));
+                student.addPoints("Spring", inputArrInt.get(4));
+                println("Points updated.");
+            } catch (Exception e) {
+                println(e.getMessage());
+            }
+        }
+        while (scanner.hasNextLine());
+    }
+
+    private static void printStudents() throws Exception {
+        Set<Integer> IDs = db.getIDs();
+        if (IDs.isEmpty()) throw new Exception("No students found.");
+        println("Students:");
+        IDs.forEach(System.out::println);
+    }
+
+    public static void find() {
+        println("Enter an id or 'back' to return:");
+        do {
+            try {
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("back")) break;
+                int id = Integer.parseInt(input);
+                Student student = db.findStudentById(id);
+                if (student == null) throw new Exception("No student is found for id=" + id);
+                System.out.print(student.getID() + " points: ");
+                student.getAllPoints().forEach((subject, points) -> System.out.print(subject + "=" + points + "; "));
+                println("");
+            } catch (Exception e) {
+                println(e.getMessage());
+            }
+        }
+        while (scanner.hasNextLine());
+    }
+
+
     public static void addStudents() {
-        Scanner scanner = new Scanner(System.in);
 
         int studentsCounter = 0;
-        System.out.println("Enter student credentials or 'back' to return.");
+        println("Enter student credentials or 'back' to return.");
         String input;
         do {
             input = scanner.nextLine();
             if (input.equalsIgnoreCase("back")) break;
             try {
                 Student student = new Student(input);
-                System.out.println("The student has been added.");
+                if (db.add(student) == null) throw new Exception("This email is already taken.");
+                println("The student has been added.");
                 studentsCounter += 1;
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                println(e.getMessage());
             }
+
         }
         while (scanner.hasNextLine());
 
-        System.out.println("Total " + studentsCounter + " students have been added.");
+        println("Total " + studentsCounter + " students have been added.");
 
     }
+
+    private static void println(String str) {
+        System.out.println(str);
+    }
+
 }
 
-class Student {
-    private String firstName;
-    private String lastName;
-    private String email;
-
-    public Student(String firstName, String lastName, String email) throws Exception {
-        this.setEmail(email);
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-    }
-
-    public Student(String input) throws Exception {
-        String[] arrInput = input.split(" ");
-        int length = arrInput.length;
-
-        if (length < 3) {
-            throw new Exception("Incorrect credentials.");
-        }
-        this.setFirstName(arrInput[0]);
-        this.setLastName(String.join(" ", Arrays.copyOfRange(arrInput, 1, length - 1)));
-        this.setEmail(arrInput[length - 1]);
-
-    }
-
-    public void setEmail(String email) throws Exception {
-        if (Validator.isValidEmail(email))
-            this.email = email;
-        else {
-            throw new Exception("Incorrect email.");
-        }
-    }
-
-    public void setFirstName(String firstName) throws Exception {
-        if (Validator.isValidFirstName(firstName))
-            this.firstName = firstName;
-        else {
-            throw new Exception("Incorrect first name.");
-        }
-    }
-
-    public void setLastName(String lastName) throws Exception {
-        if (Validator.isValidLastName(lastName))
-            this.lastName = lastName;
-        else {
-            throw new Exception("Incorrect last name.");
-        }
-    }
-
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getEmail() {
-        return email;
-
-    }
-}
-
-class Validator {
-
-
-    public static boolean isValidFirstName(String firstName) {
-        return firstName.matches("^[A-Za-z]([-']?[A-Za-z])+$");
-    }
-
-    public static boolean isValidLastName(String lastName) {
-        return lastName.matches("^[A-Za-z]([-' ]?[A-Za-z])+$");
-    }
-
-//    These emails are invalid, but that's the requirements of task.
-    public static boolean isValidEmail(String email) {
-        return email.matches("^[A-Za-z0-9]+([.\\-_]?\\w)*@[A-Za-z0-9]+([.\\-_]?[A-Za-z0-9])*(\\.[A-Za-z0-9]+)$");
-
-    }
-}

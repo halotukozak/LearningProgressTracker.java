@@ -42,4 +42,16 @@ class StudentTest {
         }
 
     }
+
+    @Test
+    void setPoints(){
+        try {
+            Student s = new Student("firstName lastName email@dot.com");
+            s.addPoints("Java", 1000);
+            assertEquals(s.getPoints("Java"), 1000);
+        } catch (Exception e) {
+            fail("These parameters should be OK.");
+        }
+
+    }
 }

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static tracker.Validator.*;
+import static tracker.Student.RegexValidator.*;
 
-class ValidatorTest {
+class RegexValidatorTest {
 
 
     //Email
@@ -121,7 +121,7 @@ class ValidatorTest {
         assertFalse(isValidLastName("-Sam-Esmail"));
         assertFalse(isValidLastName("'O'Neill"));
         assertFalse(isValidLastName(" ONeill"));
-        assertFalse(isValidLastName("ON 'eill"));
+        assertFalse(isValidLastName("ON 'Will"));
     }
 
     @Test

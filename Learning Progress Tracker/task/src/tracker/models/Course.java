@@ -1,5 +1,7 @@
 package tracker.models;
 
+import tracker.models.entities.CourseEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +10,7 @@ public class Course {
     private static int lastID = 0;
     private int ID;
 
-    private final Set<tracker.db.CourseEntity> entities = new HashSet<>();
+    private final Set<CourseEntity> entities = new HashSet<>();
 
     public Course(String name) {
         this.ID = ++lastID;
@@ -46,11 +48,11 @@ public class Course {
         return this.ID;
     }
 
-    public Set<tracker.db.CourseEntity> getEntities() {
+    public Set<CourseEntity> getEntities() {
         return this.entities;
     }
 
-    public void updateEntity(tracker.db.CourseEntity newCourseEntity) {
+    public void updateEntity(CourseEntity newCourseEntity) {
         this.entities.removeIf(e -> e == newCourseEntity);
         this.entities.add(newCourseEntity);
     }

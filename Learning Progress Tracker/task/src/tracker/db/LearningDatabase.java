@@ -3,6 +3,9 @@ package tracker.db;
 import org.jetbrains.annotations.NotNull;
 import tracker.models.Course;
 import tracker.models.Student;
+import tracker.models.entities.CourseEntity;
+import tracker.models.entities.DetailsEntity;
+import tracker.models.entities.NotificationEntity;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -11,8 +14,43 @@ import java.util.stream.Collectors;
 public class LearningDatabase {
     private final HashMap<Integer, Student> students = new HashMap<>();
     private final HashMap<Integer, Course> courses = new HashMap<>();
-    private final HashSet<tracker.db.CourseEntity> points = new HashSet<>();
+    private final HashSet<CourseEntity> points = new HashSet<>();
+    private final HashSet<NotificationEntity> notifications = new HashSet<>();
 
+    private static final class OPTIONS {
+        private static final String mostPopular = "Most popular";
+        private static final String leastPopular = "Least popular";
+        private static final String highestActivity = "Highest activity";
+        private static final String lowestActivity = "Lowest activity";
+        private static final String easiestCourse = "Easiest course";
+        private static final String hardestCourse = "Hardest course";
+
+        public static Set<Integer> getID(@NotNull String option, StatisticsAnalyzer sa) {
+            return switch (option) {
+                case mostPopular, highestActivity -> sa.getMostPopular();
+                case leastPopular, lowestActivity -> sa.getLeastPopular();
+//                The project's requirements are weird, but I'm leaving "my approach"
+//                case highestActivity -> sa.getHighestActivity();
+//                case lowestActivity -> sa.getLowestActivity();
+                case easiestCourse -> sa.getEasiestCourse();
+                case hardestCourse -> sa.getHardestCourse();
+                default -> throw new RuntimeException("There is no such an option.");
+            };
+        }
+
+        private static String getOpposite(@NotNull String option) {
+            return switch (option) {
+                case mostPopular -> leastPopular;
+                case leastPopular -> mostPopular;
+                case highestActivity -> lowestActivity;
+                case lowestActivity -> highestActivity;
+                case easiestCourse -> hardestCourse;
+                case hardestCourse -> easiestCourse;
+                default -> throw new RuntimeException("There is no such an option.");
+            };
+        }
+
+    }
 
     public Student findStudentByID(int ID) {
         return students.get(ID);
@@ -68,22 +106,23 @@ public class LearningDatabase {
     }
 
 
-    public tracker.db.CourseEntity addPoints(int studentID, int courseID, int addedPoints) {
-        if (addedPoints == 0) return null;
+    public void addPoints(int studentID, int courseID, int addedPoints) {
+        if (addedPoints == 0) return;
         Student student = findStudentByID(studentID);
         Course course = findCourseByID(courseID);
-        if (student == null || course == null) return null;
-        tracker.db.CourseEntity courseEntity = this.points.stream().filter(e -> e.getStudentID() == studentID && e.getCourseID() == courseID).findFirst().orElse(null);
-        tracker.db.CourseEntity newCourseEntity;
+        if (student == null || course == null) return;
+        CourseEntity courseEntity = this.points.stream().filter(e -> e.getStudentID() == studentID && e.getCourseID() == courseID).findFirst().orElse(null);
+        CourseEntity newCourseEntity;
         if (courseEntity != null) {
             this.points.removeIf(e -> e == courseEntity);
             newCourseEntity = courseEntity.addPoints(addedPoints);
         } else {
-            newCourseEntity = new tracker.db.CourseEntity(studentID, courseID, addedPoints);
+            newCourseEntity = new CourseEntity(studentID, courseID, addedPoints);
         }
         this.points.add(newCourseEntity);
-        course.updateEntity(newCourseEntity);
-        return newCourseEntity;
+        if (course.getCompleteness() == newCourseEntity.getPoints()) {
+            notifications.add(new NotificationEntity(studentID, courseID));
+        }
     }
 
     public Map<String, Integer> getResultsOfStudent(int ID) {
@@ -104,84 +143,10 @@ public class LearningDatabase {
             result.add(new DetailsEntity(entity.getStudentID(), entity.getPoints()));
         }
 
-        result.sort(new EntityComparator());
+        result.sort(new DetailsEntity.EntityComparator());
         return result;
     }
 
-    public record DetailsEntity(int studentID, int points) {
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (!(obj instanceof DetailsEntity other)) return false;
-            return other.studentID == this.studentID && other.points == this.points;
-        }
-    }
-
-    private static class EntityComparator implements Comparator<DetailsEntity> {
-
-        //        TODO It compares reversing...
-        @Override
-        public int compare(@NotNull DetailsEntity o1, @NotNull DetailsEntity o2) {
-            if (o1.points() > o2.points()) {
-                return -1;
-            }
-            if (o1.points() < o2.points()) {
-                return 1;
-            }
-            return Integer.compare(o1.studentID(), o2.studentID);
-        }
-    }
-
-
-//    private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-//        List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-//        list.sort(Entry.comparingByValue());
-//
-//
-//        Map<K, V> result = new LinkedHashMap<>();
-//        reverse(list);
-//        for (Entry<K, V> entry : list) {
-//            result.put(entry.getKey(), entry.getValue());
-//        }
-//
-//        return result;
-//    }
-
-    private static final class OPTIONS {
-        private static final String mostPopular = "Most popular";
-        private static final String leastPopular = "Least popular";
-        private static final String highestActivity = "Highest activity";
-        private static final String lowestActivity = "Lowest activity";
-        private static final String easiestCourse = "Easiest course";
-        private static final String hardestCourse = "Hardest course";
-
-        public static Set<Integer> getID(@NotNull String option, StatisticsAnalyzer sa) {
-            return switch (option) {
-                case mostPopular, highestActivity -> sa.getMostPopular();
-                case leastPopular, lowestActivity -> sa.getLeastPopular();
-//                The project's requirements are weird, but I'm leaving "my approach"
-//                case highestActivity -> sa.getHighestActivity();
-//                case lowestActivity -> sa.getLowestActivity();
-                case easiestCourse -> sa.getEasiestCourse();
-                case hardestCourse -> sa.getHardestCourse();
-                default -> throw new RuntimeException("There is no such an option.");
-            };
-        }
-
-        private static String getOpposite(@NotNull String option) {
-            return switch (option) {
-                case mostPopular -> leastPopular;
-                case leastPopular -> mostPopular;
-                case highestActivity -> lowestActivity;
-                case lowestActivity -> highestActivity;
-                case easiestCourse -> hardestCourse;
-                case hardestCourse -> easiestCourse;
-                default -> throw new RuntimeException("There is no such an option.");
-            };
-        }
-
-    }
 
     public Map<String, String> getStatistics(@NotNull List<String> options) {
         StatisticsAnalyzer sa = new StatisticsAnalyzer(points);
@@ -208,6 +173,20 @@ public class LearningDatabase {
             }
         }
         return result;
+    }
+
+    public List<String> getNotifications() {
+        List<String> list = new ArrayList<>();
+
+        for (NotificationEntity notification : notifications) {
+            Student student = findStudentByID(notification.studentId());
+            String courseName = findCourseByID(notification.courseId()).getName();
+            list.add("To: " + student.getEmail() + "\n" +
+                    "Re: Your Learning Progress\n" +
+                    "Hello, " + student.getFullName() + "! You have accomplished our " + courseName + " course!");
+        }
+        notifications.clear();
+        return list;
     }
 }
 

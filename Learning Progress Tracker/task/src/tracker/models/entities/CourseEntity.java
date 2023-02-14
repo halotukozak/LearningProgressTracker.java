@@ -1,4 +1,4 @@
-package tracker.db;
+package tracker.models.entities;
 
 public class CourseEntity {
     private final int courseID;

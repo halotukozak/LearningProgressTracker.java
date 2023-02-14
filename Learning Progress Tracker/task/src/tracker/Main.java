@@ -1,9 +1,9 @@
 package tracker;
 
 import tracker.db.LearningDatabase;
-import tracker.db.LearningDatabase.DetailsEntity;
 import tracker.models.Course;
 import tracker.models.Student;
+import tracker.models.entities.DetailsEntity;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -51,6 +51,7 @@ public class Main {
                     case "list" -> list();
                     case "find" -> find();
                     case "statistics" -> statistics();
+                    case "notify" -> notifyStudents();
                     default -> throw new Exception("Unknown command!");
                 }
             } catch (Exception e) {
@@ -58,6 +59,13 @@ public class Main {
             }
         }
         while (scanner.hasNextLine());
+    }
+
+    private static void notifyStudents() {
+        List<String> notifications = db.getNotifications();
+        notifications.forEach(Main::println);
+        println("Total " + notifications.size() + " students have been notified.");
+
     }
 
     private static void statistics() {

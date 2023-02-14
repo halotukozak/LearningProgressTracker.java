@@ -1,6 +1,7 @@
 package tracker.db;
 
 import org.jetbrains.annotations.NotNull;
+import tracker.models.entities.CourseEntity;
 
 import java.util.*;
 import java.util.function.BiFunction;

@@ -80,6 +80,10 @@ public class Student {
         return this.ID;
     }
 
+    public String getFullName() {
+        return this.getFirstName() + " " + this.getLastName();
+    }
+
 
     public static class StudentValidator {
 

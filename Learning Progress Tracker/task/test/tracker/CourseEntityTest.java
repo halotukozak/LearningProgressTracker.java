@@ -2,9 +2,9 @@ package tracker;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tracker.db.CourseEntity;
+import tracker.models.entities.CourseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CourseEntityTest {
 

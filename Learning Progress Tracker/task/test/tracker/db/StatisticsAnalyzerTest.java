@@ -1,6 +1,7 @@
 package tracker.db;
 
 import org.junit.jupiter.api.Test;
+import tracker.models.entities.CourseEntity;
 
 import java.util.List;
 import java.util.Set;

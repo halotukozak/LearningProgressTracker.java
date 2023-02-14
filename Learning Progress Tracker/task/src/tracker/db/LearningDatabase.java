@@ -106,11 +106,11 @@ public class LearningDatabase {
     }
 
 
-    public void addPoints(int studentID, int courseID, int addedPoints) {
-        if (addedPoints == 0) return;
+    public CourseEntity addPoints(int studentID, int courseID, int addedPoints) {
+        if (addedPoints == 0) return null;
         Student student = findStudentByID(studentID);
         Course course = findCourseByID(courseID);
-        if (student == null || course == null) return;
+        if (student == null || course == null) return null;
         CourseEntity courseEntity = this.points.stream().filter(e -> e.getStudentID() == studentID && e.getCourseID() == courseID).findFirst().orElse(null);
         CourseEntity newCourseEntity;
         if (courseEntity != null) {
@@ -123,6 +123,7 @@ public class LearningDatabase {
         if (course.getCompleteness() == newCourseEntity.getPoints()) {
             notifications.add(new NotificationEntity(studentID, courseID));
         }
+        return newCourseEntity;
     }
 
     public Map<String, Integer> getResultsOfStudent(int ID) {
@@ -173,6 +174,11 @@ public class LearningDatabase {
             }
         }
         return result;
+    }
+
+    public int getNumberOfStudentsToNotify() {
+        Set<Integer> students = notifications.stream().map(NotificationEntity::studentId).collect(Collectors.toSet());
+        return students.size();
     }
 
     public List<String> getNotifications() {

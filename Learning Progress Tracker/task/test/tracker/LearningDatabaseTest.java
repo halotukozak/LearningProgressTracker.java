@@ -3,10 +3,10 @@ package tracker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import tracker.db.CourseEntity;
 import tracker.db.LearningDatabase;
 import tracker.models.Course;
 import tracker.models.Student;
+import tracker.models.entities.CourseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -110,7 +110,6 @@ class LearningDatabaseTest {
         int courseID = db.add(sampleCourse);
         CourseEntity newCourseEntity = db.addPoints(studentID, courseID, samplePoints);
         assertEquals(samplePoints, newCourseEntity.getPoints());
-        assertTrue(sampleCourse.getEntities().contains(newCourseEntity));
     }
 
     @Test

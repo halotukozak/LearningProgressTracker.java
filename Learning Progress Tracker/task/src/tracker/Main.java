@@ -62,9 +62,10 @@ public class Main {
     }
 
     private static void notifyStudents() {
+        int notifiedStudents = db.getNumberOfStudentsToNotify();
         List<String> notifications = db.getNotifications();
         notifications.forEach(Main::println);
-        println("Total " + notifications.size() + " students have been notified.");
+        println("Total " + notifiedStudents + " students have been notified.");
 
     }
 

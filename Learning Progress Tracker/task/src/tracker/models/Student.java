@@ -1,6 +1,8 @@
 package tracker.models;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 
 public class Student {
@@ -18,7 +20,7 @@ public class Student {
         this.setLastName(lastName);
     }
 
-    public Student(String input) throws Exception {
+    public Student(@NotNull String input) throws Exception {
         String[] arrInput = input.split(" ");
         int length = arrInput.length;
 
@@ -82,16 +84,16 @@ public class Student {
     public static class StudentValidator {
 
 
-        public static boolean isValidFirstName(String firstName) {
+        public static boolean isValidFirstName(@NotNull String firstName) {
             return firstName.matches("^[A-Za-z]([-']?[A-Za-z])+$");
         }
 
-        public static boolean isValidLastName(String lastName) {
+        public static boolean isValidLastName(@NotNull String lastName) {
             return lastName.matches("^[A-Za-z]([-' ]?[A-Za-z])+$");
         }
 
         //    These emails are invalid, but that's the requirements of task.
-        public static boolean isValidEmail(String email) {
+        public static boolean isValidEmail(@NotNull String email) {
             return email.matches("^[A-Za-z0-9]+([.\\-_]?\\w)*@[A-Za-z0-9]+([.\\-_]?[A-Za-z0-9])*(\\.[A-Za-z0-9]+)$");
 
         }

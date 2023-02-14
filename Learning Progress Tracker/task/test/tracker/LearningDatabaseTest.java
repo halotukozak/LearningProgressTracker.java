@@ -8,14 +8,18 @@ import tracker.db.LearningDatabase;
 import tracker.models.Course;
 import tracker.models.Student;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class LearningDatabaseTest {
     static LearningDatabase db;
     static Student s1, s2, s3;
     static Course sampleCourse;
-    int samplePoints = 15;
+    final int samplePoints = 15;
+    final List<String> options = List.of("Most popular", "Least popular", "Highest activity", "Lowest activity", "Easiest course", "Hardest course");
 
 
     @BeforeAll
@@ -68,7 +72,7 @@ class LearningDatabaseTest {
     @Test
     void findCourseByName() {
         db.add(sampleCourse);
-        assertEquals(sampleCourse, db.findCourseByName("test"));
+        assertEquals(sampleCourse, db.findCourseByName("TEST"));
     }
 
 
@@ -76,17 +80,45 @@ class LearningDatabaseTest {
     void addPoints() {
         int studentID = db.add(s1);
         int courseID = db.add(sampleCourse);
-        CourseEntity entity = db.addPoints(studentID, courseID, samplePoints);
-        CourseEntity newEntity = db.addPoints(studentID, courseID, samplePoints);
-        assertEquals(samplePoints + samplePoints, newEntity.getPoints());
+        db.addPoints(studentID, courseID, samplePoints);
+        CourseEntity newCourseEntity = db.addPoints(studentID, courseID, samplePoints);
+        assertEquals(samplePoints + samplePoints, newCourseEntity.getPoints());
     }
+
+    @Test
+    void addPointsTwice() {
+        int studentID = db.add(s1);
+        int courseID = db.add(sampleCourse);
+        int courseID2 = db.add(new Course("test2"));
+        CourseEntity courseEntity1 = db.addPoints(studentID, courseID, samplePoints);
+        CourseEntity courseEntity2 = db.addPoints(studentID, courseID2, samplePoints);
+
+        assertEquals(samplePoints, courseEntity1.getPoints());
+        assertEquals(samplePoints, courseEntity2.getPoints());
+
+        courseEntity1 = db.addPoints(studentID, courseID, samplePoints);
+        courseEntity2 = db.addPoints(studentID, courseID2, samplePoints);
+
+        assertEquals(samplePoints * 2, courseEntity1.getPoints());
+        assertEquals(samplePoints * 2, courseEntity2.getPoints());
+    }
+
 
     @Test
     void addPointsToNonExistingEntity() {
         int studentID = db.add(s1);
         int courseID = db.add(sampleCourse);
-        CourseEntity newEntity = db.addPoints(studentID, courseID, samplePoints);
-        assertEquals(samplePoints, newEntity.getPoints());
+        CourseEntity newCourseEntity = db.addPoints(studentID, courseID, samplePoints);
+        assertEquals(samplePoints, newCourseEntity.getPoints());
+        assertTrue(sampleCourse.getEntities().contains(newCourseEntity));
+    }
+
+    @Test
+    void addZeroPoints() {
+        int studentID = db.add(s1);
+        int courseID = db.add(sampleCourse);
+        CourseEntity newCourseEntity = db.addPoints(studentID, courseID, 0);
+        assertNull(newCourseEntity);
     }
 
     @Test
@@ -95,9 +127,22 @@ class LearningDatabaseTest {
 
         int studentID = db.add(s1);
         int courseID = db.add(sampleCourse);
-        CourseEntity newEntity = db.addPoints(studentID, courseID, samplePoints);
+        db.addPoints(studentID, courseID, samplePoints);
 
         assertEquals(1, db.getResultsOfStudent(studentID).size());
+        courseID = db.add(new Course("test2"));
+        db.addPoints(studentID, courseID, samplePoints);
+
+        assertEquals(2, db.getResultsOfStudent(studentID).size());
+
     }
+
+    @Test
+    void getStatistics() {
+        Map<String, String> details = db.getStatistics(options);
+        for (var d : details.values()) assertEquals("n/a", d);
+        assertEquals(options.size(), details.size());
+    }
+
 
 }

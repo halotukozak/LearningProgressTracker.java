@@ -24,7 +24,7 @@ class StudentTest {
             new Student("name firstName");
             new Student("firstName email@dot");
             fail("Students should not be created");
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 

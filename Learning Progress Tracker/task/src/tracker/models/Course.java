@@ -1,13 +1,18 @@
 package tracker.models;
 
-public class Course implements Comparable {
-    private String name;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Course {
+    private final String name;
     private static int lastID = 0;
     private int ID;
 
+    private final Set<tracker.db.CourseEntity> entities = new HashSet<>();
+
     public Course(String name) {
         this.ID = ++lastID;
-        this.setName(name);
+        this.name = name;
     }
 
     public int getCompleteness() {
@@ -25,22 +30,11 @@ public class Course implements Comparable {
         return this.name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Course other)) return false;
         return this.name.equals(other.name);
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        Course other = (Course) o;
-//        TODO wait, is it necessary here?
-        return 0;
     }
 
     public int getID() {
@@ -50,5 +44,14 @@ public class Course implements Comparable {
     public int setID() {
         this.ID = ++lastID;
         return this.ID;
+    }
+
+    public Set<tracker.db.CourseEntity> getEntities() {
+        return this.entities;
+    }
+
+    public void updateEntity(tracker.db.CourseEntity newCourseEntity) {
+        this.entities.removeIf(e -> e == newCourseEntity);
+        this.entities.add(newCourseEntity);
     }
 }

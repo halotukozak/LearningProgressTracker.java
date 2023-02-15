@@ -6,8 +6,8 @@ public class CourseEntity {
     private int points = 0;
 
     public CourseEntity(int studentID, int courseID, int points) {
-        this.studentID = (studentID);
-        this.courseID = (courseID);
+        this.studentID = studentID;
+        this.courseID = courseID;
         this.addPoints(points);
     }
 

@@ -27,11 +27,10 @@ public class LearningDatabase {
 
         public static Set<Integer> getID(@NotNull String option, StatisticsAnalyzer sa) {
             return switch (option) {
-                case mostPopular, highestActivity -> sa.getMostPopular();
-                case leastPopular, lowestActivity -> sa.getLeastPopular();
-//                The project's requirements are weird, but I'm leaving "my approach"
-//                case highestActivity -> sa.getHighestActivity();
-//                case lowestActivity -> sa.getLowestActivity();
+                case mostPopular -> sa.getMostPopular();
+                case leastPopular -> sa.getLeastPopular();
+                case highestActivity -> sa.getHighestActivity();
+                case lowestActivity -> sa.getLowestActivity();
                 case easiestCourse -> sa.getEasiestCourse();
                 case hardestCourse -> sa.getHardestCourse();
                 default -> throw new RuntimeException("There is no such an option.");

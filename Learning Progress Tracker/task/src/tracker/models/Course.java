@@ -1,16 +1,9 @@
 package tracker.models;
 
-import tracker.models.entities.CourseEntity;
-
-import java.util.HashSet;
-import java.util.Set;
-
 public class Course {
     private final String name;
     private static int lastID = 0;
     private int ID;
-
-    private final Set<CourseEntity> entities = new HashSet<>();
 
     public Course(String name) {
         this.ID = ++lastID;
@@ -46,14 +39,5 @@ public class Course {
     public int setID() {
         this.ID = ++lastID;
         return this.ID;
-    }
-
-    public Set<CourseEntity> getEntities() {
-        return this.entities;
-    }
-
-    public void updateEntity(CourseEntity newCourseEntity) {
-        this.entities.removeIf(e -> e == newCourseEntity);
-        this.entities.add(newCourseEntity);
     }
 }

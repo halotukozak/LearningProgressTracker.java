@@ -7,10 +7,7 @@ import tracker.models.entities.DetailsEntity;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
     static final Scanner scanner = new Scanner(System.in);
@@ -148,18 +145,13 @@ public class Main {
                 System.out.print(student.getID() + " points: ");
                 Map<String, Integer> result = db.getResultsOfStudent(student.getID());
 
-//                Project's tests require particular order, it will work for unknown courses :D
-//                Iterator<Map.Entry<String, Integer>> it = result.entrySet().iterator();
-//                while (it.hasNext()) {
-//                    Map.Entry<String, Integer> entry = it.next();
-//                    String name = entry.getKey();
-//                    Integer points = entry.getValue();
-//                    System.out.print(name + "=" + points);
-//                    if (it.hasNext()) System.out.print("; ");
-//                }
-                for (String name : courses) {
-                    System.out.print(name + "=" + result.getOrDefault(name, 0));
-                    if (!name.equals("Spring")) System.out.print("; ");
+                Iterator<Map.Entry<String, Integer>> it = result.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, Integer> entry = it.next();
+                    String name = entry.getKey();
+                    Integer points = entry.getValue();
+                    System.out.print(name + "=" + points);
+                    if (it.hasNext()) System.out.print("; ");
                 }
 
             } catch (Exception e) {
